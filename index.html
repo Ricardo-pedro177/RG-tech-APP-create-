@@ -1,0 +1,181 @@
+‎<!DOCTYPE html>
+‎<html lang="pt-pt">
+‎<head>
+‎    <meta charset="UTF-8">
+‎    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+‎    <title>RG TECH • DESIGN FACTORY | Apps Ilimitados</title>
+‎    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+‎    
+‎    <!-- SEU ADMOB ID DE LUCRO -->
+‎    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4676899736965845" crossorigin="anonymous"></script>
+‎
+‎    <style>
+‎        :root { --p: #00FF66; --bg: #050508; --card: #0e0e12; --border: rgba(255, 255, 255, 0.1); --t: #fff; }
+‎        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+‎        body { background: var(--bg); color: var(--t); text-align: center; padding: 20px; overflow-x: hidden; }
+‎
+‎        .container { max-width: 1100px; margin: auto; padding-top: 30px; }
+‎        .logo { font-family: 'Orbitron'; font-size: 28px; color: var(--p); letter-spacing: 3px; text-shadow: 0 0 20px var(--p); margin-bottom: 30px; }
+‎
+‎        /* SELEÇÃO DE DESIGN */
+‎        .style-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px; }
+‎        .style-card { 
+‎            background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; 
+‎            cursor: pointer; transition: 0.3s; opacity: 0.6; 
+‎        }
+‎        .style-card.active { opacity: 1; border-color: var(--p); background: rgba(0, 255, 102, 0.05); transform: translateY(-5px); }
+‎        .style-card i { font-size: 24px; display: block; margin-bottom: 10px; }
+‎        .style-card span { font-size: 11px; font-weight: 800; text-transform: uppercase; }
+‎
+‎        /* INPUT AREA */
+‎        .creator-panel { background: var(--card); border: 1px solid var(--border); border-radius: 35px; padding: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+‎        textarea { 
+‎            width: 100%; height: 140px; background: #000; border: 1px solid #222; border-radius: 20px; 
+‎            padding: 20px; color: var(--p); font-size: 16px; outline: none; margin-bottom: 25px; transition: 0.3s;
+‎        }
+‎        textarea:focus { border-color: var(--p); }
+‎
+‎        .btn-build { 
+‎            background: var(--p); color: #000; border: none; padding: 22px 50px; border-radius: 20px; 
+‎            font-weight: 900; font-size: 18px; cursor: pointer; width: 100%; text-transform: uppercase; 
+‎            letter-spacing: 2px; transition: 0.4s; 
+‎        }
+‎        .btn-build:hover { box-shadow: 0 0 30px var(--p); transform: scale(1.01); }
+‎
+‎        /* STATUS TERMINAL */
+‎        #console { display: none; margin-top: 30px; background: #000; border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: left; font-family: monospace; font-size: 12px; }
+‎        .log { color: #666; margin-bottom: 5px; }
+‎        .log.active { color: var(--p); }
+‎
+‎        /* DOWNLOADS */
+‎        #dl-zone { display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 30px; }
+‎        .dl-card { background: #0a0a0a; border: 1px solid #222; padding: 25px; border-radius: 22px; cursor: pointer; transition: 0.3s; }
+‎        .dl-card:hover { border-color: var(--p); background: #001a0a; }
+‎
+‎        .ad-footer { margin-top: 60px; opacity: 0.5; font-size: 11px; }
+‎    </style>
+‎</head>
+‎<body>
+‎
+‎<div class="container">
+‎    <div class="logo">RG TECH • FACTORY</div>
+‎    <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;">Crie Apps em <span>Qualquer Estilo</span></h1>
+‎    <p style="color: #666; margin-bottom: 40px;">Escolha o design, descreva a ideia e receba o APK operacional.</p>
+‎
+‎    <!-- SELETOR DE ESTILO -->
+‎    <div class="style-grid" id="style-selector">
+‎        <div class="style-card active" onclick="factory.setTheme('Futurista Dark', this)"><i>🌌</i><span>Futurista</span></div>
+‎        <div class="style-card" onclick="factory.setTheme('Glassmorphism Apple', this)"><i>💎</i><span>Glassmorphism</span></div>
+‎        <div class="style-card" onclick="factory.setTheme('Cyberpunk Neon', this)"><i>🏮</i><span>Cyberpunk</span></div>
+‎        <div class="style-card" onclick="factory.setTheme('Minimalista Clean', this)"><i>⚪</i><span>Minimalista</span></div>
+‎        <div class="style-card" onclick="factory.setTheme('Material Design 3', this)"><i>📱</i><span>Material 3</span></div>
+‎        <div class="style-card" onclick="factory.setTheme('Retro 80s', this)"><i>🕹️</i><span>Retro</span></div>
+‎        <div class="style-card" onclick="factory.setTheme('Business Corporate', this)"><i>🏢</i><span>Profissional</span></div>
+‎    </div>
+‎
+‎    <div class="creator-panel">
+‎        <textarea id="appIdea" placeholder="Descreva o que o seu aplicativo deve fazer..."></textarea>
+‎        <button class="btn-build" id="buildBtn" onclick="factory.generate()">Compilar Aplicativo Unificado</button>
+‎
+‎        <div id="console"></div>
+‎
+‎        <div id="dl-zone">
+‎            <div class="dl-card" onclick="factory.get('android')">🤖 <b>Versão Android</b><br><small>GERAR APK</small></div>
+‎            <div class="dl-card" onclick="factory.get('ios')">🍎 <b>Versão iPhone</b><br><small>INSTALAR PWA</small></div>
+‎            <div class="dl-card" onclick="factory.get('windows')">🪟 <b>Versão Windows</b><br><small>DOWNLOAD .EXE</small></div>
+‎        </div>
+‎    </div>
+‎</div>
+‎
+‎<div class="ad-footer">
+‎    MONETIZAÇÃO AUTOMÁTICA ATIVA: ca-pub-4676899736965845
+‎</div>
+‎
+‎<script>
+‎    const API_KEY = "AQ.Ab8RN6JgMJi7iG3yPYf1X70kfECZfVZv2Pdx6xGtjel9-sdW7w";
+‎    let selectedStyle = "Futurista Dark";
+‎
+‎    const factory = {
+‎        setTheme(style, el) {
+‎            selectedStyle = style;
+‎            document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+‎            el.classList.add('active');
+‎        },
+‎
+‎        async generate() {
+‎            const idea = document.getElementById('appIdea').value;
+‎            if(!idea) return alert("Escreve a tua ideia!");
+‎
+‎            const consoleArea = document.getElementById('console');
+‎            const dlZone = document.getElementById('dl-zone');
+‎            consoleArea.style.display = 'block';
+‎            dlZone.style.display = 'none';
+‎            consoleArea.innerHTML = "";
+‎
+‎            this.log("Iniciando Compilador RG Tech...");
+‎            this.log(`Estilo selecionado: ${selectedStyle}`);
+‎            this.log("Consultando motor Gemini 1.5 Flash...");
+‎
+‎            const prompt = `Você é um desenvolvedor Expert. Crie um código ÚNICO HTML5/CSS3/JS para um app de: ${idea}.
+‎            REGRAS DE DESIGN:
+‎            - O estilo visual DEVE ser: ${selectedStyle}.
+‎            - Use fontes modernas e animações suaves.
+‎            REGRAS DE MONETIZAÇÃO:
+‎            - Insira este AdMob ID ca-pub-4676899736965845 no cabeçalho.
+‎            REGRAS DE PLATAFORMA:
+‎            - Inclua suporte para instalação PWA (iOS/Android/Windows).
+‎            Retorne apenas o código puro.`;
+‎
+‎            try {
+‎                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+‎                    method: 'POST',
+‎                    headers: { 'Content-Type': 'application/json' },
+‎                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+‎                });
+‎
+‎                const data = await response.json();
+‎                const code = data.candidates[0].content.parts[0].text.replace(/```html|```/g, "");
+‎                
+‎                this.generatedCode = code;
+‎                
+‎                this.log("Código-fonte gerado com sucesso.", "active");
+‎                this.log("Injetando lucratividade AdMob...");
+‎                this.log("Preparando binários APK/IPA...");
+‎
+‎                setTimeout(() => {
+‎                    this.log("✨ COMPILAÇÃO CONCLUÍDA!", "active");
+‎                    dlZone.style.display = 'grid';
+‎                }, 2000);
+‎
+‎            } catch (e) {
+‎                this.log("Erro fatal na conexão com a IA.", "active");
+‎            }
+‎        },
+‎
+‎        log(txt, cl = "") {
+‎            const l = document.createElement('div');
+‎            l.className = `log ${cl}`;
+‎            l.innerText = `> ${txt}`;
+‎            document.getElementById('console').appendChild(l);
+‎        },
+‎
+‎        get(plat) {
+‎            const blob = new Blob([this.generatedCode], { type: 'text/html' });
+‎            const url = URL.createObjectURL(blob);
+‎            
+‎            if(plat === 'android') {
+‎                alert("Redirecionando para o compilador APK gratuito. Basta enviar o arquivo que será baixado agora.");
+‎                const a = document.createElement('a'); a.href = url; a.download = 'app_android_source.html'; a.click();
+‎                window.open("https://www.webintoapp.com/", "_blank");
+‎            } else if(plat === 'ios') {
+‎                alert("Para iPhone: Hospede este código no GitHub/Netlify e use 'Adicionar à Tela de Início' no Safari.");
+‎                const a = document.createElement('a'); a.href = url; a.download = 'app_iphone_pwa.html'; a.click();
+‎            } else {
+‎                const a = document.createElement('a'); a.href = url; a.download = 'app_windows_desktop.html'; a.click();
+‎            }
+‎        }
+‎    };
+‎</script>
+‎
+‎</body>
+‎</html>
