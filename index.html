@@ -3,263 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RG Tech • Kwanza Pay Pro</title>
+    <title>Casola • Master Analytics</title>
     
-    <!-- FONTES E ÍCONES -->
+    <!-- CSS e Bibliotecas -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-    
-    <!-- SCRIPTS CORE (CARREGAMENTO SEGURO) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- ADMOB OFICIAL (Web Fallback) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4676899736965845" crossorigin="anonymous"></script>
 
     <style>
-        :root { 
-            --y-yellow: #FFCC00; --bg: #000; --card: #111; --border: rgba(255, 255, 255, 0.1); 
-            --t: #fff; --blue: #007AFF; --green: #34c759; --red: #ff3b30;
+        :root {
+            --p: #00C853; /* Verde Casola */
+            --bg: #0B0B0B;
+            --card: #1C1C1C;
+            --card-alt: #2c2c2e;
+            --border: rgba(255, 255, 255, 0.08);
+            --t: #ffffff;
+            --dim: #8e8e93;
+            --red: #ff3b30;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--t); height: 100vh; overflow: hidden; }
+        body.light {
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --card-alt: #e5e5ea;
+            --border: rgba(0, 0, 0, 0.1);
+            --t: #000000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--t); height: 100vh; overflow: hidden; transition: 0.3s; }
         
         #app { width: 100%; max-width: 480px; height: 100vh; margin: 0 auto; display: flex; flex-direction: column; position: relative; }
 
-        /* TELA 1: SPLASH ADS */
+        /* SPLASH SCREEN & ADS */
         #splash { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .rg-logo { 
-            width: 70px; height: 70px; background: linear-gradient(135deg, var(--blue), #5856d6);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-weight: 900; color: #fff;
-            box-shadow: 0 0 30px rgba(0, 122, 255, 0.4); margin-bottom: 20px;
-        }
+        .logo-casola { font-family: 'Orbitron'; font-size: 45px; font-weight: 900; color: var(--p); text-shadow: 0 0 30px rgba(0, 200, 83, 0.5); letter-spacing: -2px; }
+        .ad-placeholder { width: 320px; height: 250px; background: #111; border-radius: 20px; margin: 30px 0; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
 
-        /* TELA 2: SEGURANÇA PIN */
-        #pin-screen { position: fixed; inset: 0; background: #000; z-index: 90000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .pin-dots { display: flex; gap: 15px; margin: 30px 0; }
-        .dot { width: 15px; height: 15px; border: 2px solid var(--y-yellow); border-radius: 50%; }
-        .dot.active { background: var(--y-yellow); box-shadow: 0 0 15px var(--y-yellow); }
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .num-btn { width: 75px; height: 75px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); color: #fff; font-size: 24px; font-weight: 700; cursor: pointer; }
+        /* HEADER */
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--bg); border-bottom: 1px solid var(--border); z-index: 5000; }
+        .balance-chip { background: var(--card); padding: 6px 12px; border-radius: 12px; border: 1px solid var(--p); color: var(--p); font-weight: 800; font-size: 13px; }
 
-        /* DASHBOARD */
-        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .screen { display:none; flex:1; padding:20px; overflow-y:auto; padding-bottom:100px; }
-        .screen.active { display:block; }
+        /* NAVEGAÇÃO ENTRE TELAS */
+        .screen { display: none; flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 110px; height: 100%; scrollbar-width: none; }
+        .screen.active { display: flex; flex-direction: column; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
 
-        .glass-card { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin-bottom: 20px; }
-        .balance-txt { font-family: 'Orbitron'; font-size: 30px; font-weight: 900; color: var(--y-yellow); }
+        /* CARDS E ESTILOS BESOCCER */
+        .glass-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 15px; }
+        .match-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card); border-radius: 20px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .score-box { text-align: center; min-width: 70px; }
+        .score-box h2 { font-family: 'Orbitron'; color: var(--p); font-size: 18px; }
+        .live-tag { color: var(--red); font-size: 10px; font-weight: 900; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
 
-        /* AÇÕES */
-        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
-        .action-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 700; cursor: pointer; }
-        .icon-box { width: 55px; height: 55px; background: var(--card); border-radius: 18px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 8px; }
+        /* IA CHAT MINGO */
+        .chat-container { display: flex; flex-direction: column; gap: 12px; }
+        .bubble { max-width: 85%; padding: 15px; border-radius: 22px; font-size: 14px; line-height: 1.5; }
+        .bot { background: var(--card); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+        .user { background: var(--p); color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 700; }
 
-        /* MINGO CHAT */
-        .mingo-msg { background: var(--card); border-left: 4px solid var(--blue); padding: 15px; border-radius: 15px; display: flex; gap: 12px; align-items: flex-start; }
+        /* NAV BAR */
+        nav { position: absolute; bottom: 0; width: 100%; height: 85px; background: var(--card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 25px; z-index: 9000; backdrop-filter: blur(20px); }
+        .nav-item { border:none; background:none; color: var(--dim); display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--p); }
+        .nav-item i { font-size: 22px; }
+        .nav-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
 
-        /* NAVEGAÇÃO */
-        nav { position: absolute; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.9); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px; z-index: 1000; }
-        .nav-btn { background:none; border:none; color: #444; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s; }
-        .nav-btn.active { color: var(--y-yellow); }
+        .btn-p { background: var(--p); color: #000; border: none; padding: 16px; border-radius: 18px; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+
+        /* AD BANNER */
+        .ad-banner-fixed { height: 50px; background: #000; display: flex; align-items: center; justify-content: center; border-top: 1px solid var(--border); position: relative; bottom: 85px; z-index: 8000; }
     </style>
 </head>
-<body>
+<body class="dark">
 
-<!-- 1. TELA DE ANÚNCIO (SPLASH) -->
+<!-- 1. SPLASH SCREEN COM ANÚNCIO INTERSTITIAL -->
 <div id="splash">
-    <div class="rg-logo">RG</div>
-    <h1 style="font-family:'Orbitron'; font-size: 22px;">KWANZA PAY</h1>
-    <div style="width:320px; height:250px; background:#111; margin:30px 0; border-radius:20px; overflow:hidden;">
-        <!-- ESPAÇO PARA O SEU ANÚNCIO REAL -->
-        <ins class="adsbygoogle" style="display:inline-block;width:320px;height:250px" data-ad-client="ca-pub-4676899736965845" data-ad-slot="8433831894"></ins>
+    <div class="logo-casola">CASOLA</div>
+    <div class="ad-placeholder">
+        <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-4676899736965845" data-ad-slot="8433831894"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-    <p id="load-text" style="color:var(--blue); font-weight: 800; font-size: 12px;">SISTEMA PROTEGIDO POR RG-SHIELD</p>
-    <button id="entry-btn" onclick="app.showPinScreen()" style="display:none; background:var(--y-yellow); border:none; padding:18px 60px; border-radius:15px; font-weight:900; margin-top:20px;">ENTRAR</button>
+    <p style="color: #555; font-size: 12px; font-weight: bold; letter-spacing: 2px;">NEURAL SPORTS ANALYTICS</p>
+    <button id="btn-ready" style="display:none; margin-top:20px; background:var(--p); border:none; padding:18px 60px; border-radius:15px; font-weight:900;" onclick="core.enter()">ACESSAR HOME</button>
 </div>
 
-<!-- 2. TELA DE PIN -->
-<div id="pin-screen">
-    <div class="rg-logo" style="width:40px; height:40px; font-size:12px;">RG</div>
-    <p style="font-weight: 800; font-size: 13px; margin-top: 10px;">INSIRA O SEU PIN</p>
-    <div class="pin-dots">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    </div>
-    <div class="numpad">
-        <button class="num-btn" onclick="app.typePin(1)">1</button>
-        <button class="num-btn" onclick="app.typePin(2)">2</button>
-        <button class="num-btn" onclick="app.typePin(3)">3</button>
-        <button class="num-btn" onclick="app.typePin(4)">4</button>
-        <button class="num-btn" onclick="app.typePin(5)">5</button>
-        <button class="num-btn" onclick="app.typePin(6)">6</button>
-        <button class="num-btn" onclick="app.typePin(7)">7</button>
-        <button class="num-btn" onclick="app.typePin(8)">8</button>
-        <button class="num-btn" onclick="app.typePin(9)">9</button>
-        <button class="num-btn" style="background:none; border:none;"></button>
-        <button class="num-btn" onclick="app.typePin(0)">0</button>
-        <button class="num-btn" onclick="app.clearPin()" style="font-size:14px; color:var(--red);">DEL</button>
-    </div>
-</div>
-
-<!-- 3. INTERFACE PRINCIPAL -->
 <div id="app">
     <header>
-        <div style="font-family:'Orbitron'; font-weight:900; color:var(--y-yellow); font-size:14px;">KWANZA PAY</div>
-        <div class="balance-txt" id="main-balance">Kz 0,00</div>
+        <div class="logo-casola" style="font-size: 20px;">CASOLA</div>
+        <div class="balance-chip" id="banca-top">Kz 0,00</div>
     </header>
 
     <!-- TELA: HOME -->
     <div id="scr-home" class="screen active">
-        <div class="glass-card">
-            <canvas id="miniChart" style="height: 120px;"></canvas>
+        <div style="margin-bottom: 20px;">
+            <small style="color:var(--dim)">Olá, Apostador,</small>
+            <h2 style="font-weight: 800;">Sugestão de Elite 💎</h2>
         </div>
 
-        <div class="action-grid">
-            <div class="action-item" onclick="app.trans('Envio', 5000)"><div class="icon-box">💸</div><span>ENVIAR</span></div>
-            <div class="action-item" onclick="app.trans('Receber', 10000)"><div class="icon-box">📥</div><span>RECEBER</span></div>
-            <div class="action-item" onclick="app.trans('Unitel', 2000)"><div class="icon-box">📱</div><span>UNITEL</span></div>
-            <div class="action-item" onclick="app.trans('Africell', 2000)"><div class="icon-box">📶</div><span>AFRICELL</span></div>
-        </div>
-
-        <div class="mingo-msg">
-            <span style="font-size:24px;">🤖</span>
-            <div style="flex:1">
-                <b style="color:var(--blue); font-size:12px; display:block;">Mingo Assistant</b>
-                <p id="mingo-txt" style="font-size:13px; font-weight:600;">Bem-vindo de volta! O teu saldo cresceu 5% esta semana.</p>
+        <div class="glass-card" style="border-left: 5px solid var(--p);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:10px; font-weight:900; color:var(--p);">CONFIANÇA MÁXIMA</span>
+                <b style="color:var(--p);">94%</b>
             </div>
+            <h3 style="margin: 10px 0;">Man. City vs Real Madrid</h3>
+            <p style="font-size: 13px; opacity: 0.7;">Projeção IA: Vitória City / Ambas Marcam Sim.</p>
+        </div>
+
+        <h3 style="font-size: 12px; font-weight: 900; margin-bottom: 10px; opacity: 0.5;">LIVE MATCHES</h3>
+        <div id="home-live-list"></div>
+    </div>
+
+    <!-- TELA: AO VIVO -->
+    <div id="scr-live" class="screen">
+        <h2 style="font-weight: 800; margin-bottom: 20px;">Jogos em Tempo Real</h2>
+        <div id="full-live-list"></div>
+    </div>
+
+    <!-- TELA: EXPLORAR -->
+    <div id="scr-explore" class="screen">
+        <input type="text" placeholder="🔍 Procurar liga ou time..." style="width:100%; padding:15px; background:var(--card); border:1px solid var(--border); border-radius:15px; color:#fff; margin-bottom:20px; outline:none;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="glass-card" style="text-align:center; margin:0;">🇦🇴 <b>Girabola</b></div>
+            <div class="glass-card" style="text-align:center; margin:0;">🇪🇺 <b>Champions</b></div>
+            <div class="glass-card" style="text-align:center; margin:0;">🇧🇷 <b>Brasileirão</b></div>
+            <div class="glass-card" style="text-align:center; margin:0;">🇬🇧 <b>Premier</b></div>
         </div>
     </div>
 
-    <!-- TELA: CARTÕES -->
-    <div id="scr-cards" class="screen">
-        <h2 style="font-family:'Orbitron'; margin-bottom:20px;">Meus Cartões</h2>
-        <div class="glass-card" style="background:linear-gradient(135deg, var(--blue), #000); height:180px;">
-            <div style="font-family:'Orbitron';">RG TECH MASTER</div>
-            <div style="margin-top:40px; font-size:22px; letter-spacing:4px;">**** **** **** 2030</div>
-            <div style="margin-top:30px; display:flex; justify-content:space-between;">
-                <span>Val: 12/28</span>
-                <b style="font-style:italic;">VISA</b>
-            </div>
+    <!-- TELA: IA MINGO -->
+    <div id="scr-ia" class="screen">
+        <div id="chat-render" class="chat-container">
+            <div class="bubble bot">Olá! Sou o Mingo IA. Digite o jogo ou aposta (Ex: "Barcelona vs Liverpool") e eu analiso tudo para ti.</div>
+        </div>
+        <div style="position:fixed; bottom:150px; left:20px; right:20px; display:flex; gap:10px;">
+            <input type="text" id="ia-input" placeholder="Digite sua aposta..." style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:15px; padding:15px; color:#fff; outline:none;">
+            <button onclick="core.askIA()" style="background:var(--p); border:none; width:50px; height:50px; border-radius:50%; color:#000; font-weight:bold;">➔</button>
         </div>
     </div>
 
-    <!-- TELA: SETTINGS -->
-    <div id="scr-set" class="screen">
-        <h2 style="font-family:'Orbitron'; margin-bottom:20px;">Ajustes</h2>
-        <div class="glass-card" style="padding:10px;">
-            <div style="padding:15px; border-bottom:1px solid #222; display:flex; justify-content:space-between;">
-                <span>Linguagem</span><b>Português (AO)</b>
-            </div>
-            <div style="padding:15px; display:flex; justify-content:space-between;" onclick="location.reload()">
-                <span>Sair da Conta</span><b>🔒</b>
-            </div>
+    <!-- TELA: PERFIL / BANCA -->
+    <div id="scr-perfil" class="screen">
+        <h2 style="font-weight: 800; margin-bottom: 20px;">Gestão de Banca</h2>
+        <div class="glass-card" style="text-align:center;">
+            <small style="opacity:0.5; font-weight:800;">SALDO DISPONÍVEL</small>
+            <h1 id="banca-val" style="font-family:'Orbitron'; color:var(--p); margin:10px 0;">Kz 0,00</h1>
+            <button class="btn-p" style="padding:10px; font-size:11px;" onclick="core.updateBanca()">AJUSTAR BANCA</button>
         </div>
-        <div style="text-align:center; font-size:10px; color:#444; margin-top:50px;">
-            Engenharia: <b>RG Tech</b> | Edição: <b>João Carruagem</b><br>© 2026 Sovereign Finance
+
+        <div class="glass-card" style="height:180px;">
+            <canvas id="bancaChart"></canvas>
+        </div>
+
+        <div class="glass-card" onclick="core.toggleTheme()" style="cursor:pointer; display:flex; justify-content:space-between;">
+            <b>Mudar Tema (Claro/Escuro)</b>
+            <span>🌓</span>
+        </div>
+
+        <div style="text-align:center; font-size:10px; color:var(--dim); margin-top:50px;">
+            Desenvolvido por: <b>RG Tech</b><br>© 2026 Casola Intelligence
         </div>
     </div>
 
+    <!-- NAVEGAÇÃO -->
     <nav>
-        <div class="nav-btn active" onclick="app.nav('home', this)"><span>🏠</span><span>Home</span></div>
-        <div class="nav-btn" onclick="app.nav('cards', this)"><span>💳</span><span>Cards</span></div>
-        <div class="nav-btn" onclick="app.nav('set', this)"><span>⚙️</span><span>Ajustes</span></div>
+        <div class="nav-item active" onclick="core.nav('home', this)"><i>🏠</i><span>Home</span></div>
+        <div class="nav-item" onclick="core.nav('live', this)"><i>⏱️</i><span>Ao Vivo</span></div>
+        <div class="nav-item" onclick="core.nav('explore', this)"><i>🌍</i><span>Explorar</span></div>
+        <div class="nav-item" onclick="core.nav('ia', this)"><i>🧠</i><span>Mingo IA</span></div>
+        <div class="nav-item" onclick="core.nav('perfil', this)"><i>👤</i><span>Perfil</span></div>
     </nav>
+
+    <!-- BANNER AD FIXO -->
+    <div class="ad-banner-fixed">
+        <ins class="adsbygoogle" style="display:inline-block;width:320px;height:50px" data-ad-client="ca-pub-4676899736965845" data-ad-slot="8433831894"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
 </div>
 
 <script>
-    const app = {
-        balance: parseFloat(localStorage.getItem('kz_bal')) || 250000.00,
-        inputPin: "",
-
+    const core = {
+        banca: parseFloat(localStorage.getItem('casola_kz_bal')) || 250000.00,
+        
         init() {
-            this.updateBalance();
+            this.renderMatches();
+            this.updateBancaUI();
             this.initChart();
-            // Simular carregamento do anúncio
+            // Simular Ads Loading
             setTimeout(() => {
-                document.getElementById('load-text').innerText = "ANÚNCIO CARREGADO";
-                document.getElementById('entry-btn').style.display = "block";
-            }, 5000);
+                document.getElementById('btn-ready').style.display = 'block';
+                document.getElementById('load-msg').innerText = "ANÚNCIO CARREGADO!";
+            }, 3000);
         },
 
-        showPinScreen() {
-            document.getElementById('splash').style.display = "none";
-            document.getElementById('pin-screen').style.display = "flex";
-        },
-
-        typePin(n) {
-            if(this.inputPin.length < 4) {
-                this.inputPin += n;
-                this.updatePinDots();
-                if(this.inputPin.length === 4) {
-                    setTimeout(() => {
-                        document.getElementById('pin-screen').style.display = "none";
-                        this.speak("Bem-vindo à RG Tech");
-                    }, 500);
-                }
-            }
-        },
-
-        updatePinDots() {
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((dot, i) => {
-                if(i < this.inputPin.length) dot.classList.add('active');
-                else dot.classList.remove('active');
-            });
-        },
-
-        clearPin() { this.inputPin = ""; this.updatePinDots(); },
-
-        updateBalance() {
-            document.getElementById('main-balance').innerText = `Kz ${this.balance.toLocaleString('pt-AO', {minimumFractionDigits:2})}`;
-            localStorage.setItem('kz_bal', this.balance);
-        },
-
-        trans(type, val) {
-            if(type !== 'Receber' && this.balance < val) {
-                this.speak("Saldo insuficiente");
-                alert("Erro: Saldo Insuficiente!");
-                return;
-            }
-            
-            if(type === 'Receber') this.balance += val;
-            else this.balance -= val;
-            
-            this.updateBalance();
-            document.getElementById('mingo-txt').innerText = `Sucesso! Transação de ${type} concluída.`;
-            this.speak("Transação realizada com sucesso");
-        },
-
-        speak(t) {
-            const s = new SpeechSynthesisUtterance(t);
-            s.lang = 'pt-PT';
-            window.speechSynthesis.speak(s);
-        },
+        enter() { document.getElementById('splash').style.display = 'none'; },
 
         nav(id, el) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-            document.getElementById('scr-'+id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('scr-' + id).classList.add('active');
             el.classList.add('active');
+            if(id === 'perfil') this.initChart();
         },
 
+        renderMatches() {
+            const matches = [
+                {h: 'Arsenal', a: 'Bayern', sh: 2, sa: 1, t: '65\'', p: '82%'},
+                {h: 'Petro Luanda', a: 'Sagrada', sh: 0, sa: 0, t: '12\'', p: '45%'},
+                {h: 'Real Madrid', a: 'City', sh: 3, sa: 3, t: 'FIM', p: '100%'}
+            ];
+            const html = matches.map(m => `
+                <div class="match-card">
+                    <div style="flex:1"><b>${m.h}</b></div>
+                    <div class="score-box">
+                        <div class="live-tag">${m.t}</div>
+                        <h2>${m.sh} - ${m.sa}</h2>
+                    </div>
+                    <div style="flex:1; text-align:right;"><b>${m.a}</b></div>
+                </div>
+            `).join('');
+            document.getElementById('home-live-list').innerHTML = html;
+            document.getElementById('full-live-list').innerHTML = html + html;
+        },
+
+        askIA() {
+            const q = document.getElementById('ia-input').value;
+            if(!q) return;
+            const chat = document.getElementById('chat-render');
+            chat.innerHTML += `<div class="bubble user">${q}</div>`;
+            document.getElementById('ia-input').value = "";
+            
+            setTimeout(() => {
+                const prob = Math.floor(Math.random()*40) + 55;
+                const score1 = Math.floor(Math.random()*4);
+                const score2 = Math.floor(Math.random()*2);
+                
+                chat.innerHTML += `
+                    <div class="bubble bot">
+                        <b>Mingo IA Analytics:</b><br><br>
+                        Probabilidade: <span style="color:var(--p)">${prob}%</span><br>
+                        Confiança: <b>ALTA</b><br>
+                        Placar Projetado: <b>${score1} - ${score2}</b><br><br>
+                        <b>Análise:</b> Com base na forma recente e média de golos de 2.1, esta partida tende a ser decidida no meio-campo. O time da casa tem 68% de posse simulada.<br><br>
+                        <b>Sugestão Segura:</b> Vitória protegida ou Over 1.5 Gols.
+                    </div>
+                `;
+                chat.parentElement.scrollTop = chat.parentElement.scrollHeight;
+            }, 1500);
+        },
+
+        updateBanca() {
+            const v = prompt("Insira o seu saldo atual (Kz):");
+            if(v) { this.banca = parseFloat(v); localStorage.setItem('casola_kz_bal', this.banca); this.updateBancaUI(); }
+        },
+
+        updateBancaUI() {
+            const s = `Kz ${this.banca.toLocaleString('pt-AO', {minimumFractionDigits: 2})}`;
+            document.getElementById('banca-val').innerText = s;
+            document.getElementById('banca-top').innerText = s;
+        },
+
+        toggleTheme() { document.body.classList.toggle('light'); },
+
         initChart() {
-            const ctx = document.getElementById('miniChart').getContext('2d');
-            new Chart(ctx, {
+            const ctx = document.getElementById('bancaChart').getContext('2d');
+            if(window.bChart) window.bChart.destroy();
+            window.bChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['S1', 'S2', 'S3', 'S4'],
                     datasets: [{
-                        data: [150, 280, 190, 400],
-                        borderColor: '#FFCC00',
+                        data: [this.banca*0.8, this.banca*0.9, this.banca*1.1, this.banca],
+                        borderColor: '#00C853',
                         tension: 0.4,
-                        fill: false
+                        fill: true,
+                        backgroundColor: 'rgba(0, 200, 83, 0.1)'
                     }]
                 },
-                options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
             });
         }
     };
 
-    window.onload = () => app.init();
+    window.onload = () => core.init();
 </script>
 </body>
 </html>
