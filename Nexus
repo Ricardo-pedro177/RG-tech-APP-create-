@@ -1,0 +1,63 @@
+const { createClient } = require('@supabase/supabase-js');
+const axios = require('axios');
+
+// CONFIGURAÇÃO DOS IDs QUE FORNECESTE
+const SUPABASE_URL = 'https://caaucmivxfgiqumvhunp.supabase.co'; // Baseado no teu ID
+const SUPABASE_KEY = 'A_TUA_ANON_KEY_DO_SUPABASE'; 
+const GROK_API_KEY = 'Xai-9kLp2N6rZ7vY4wX1mQ8tB5vJ9sK3mP2nL7xR4wT9vB1mQ8tB5vJ9sK3mP2nL7xR4wT9vB1mQ8tB5vJ9s';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function processarCicloViral() {
+    console.log("Monitorizando fila de tarefas...");
+
+    // 1. Procura tarefas pendentes para o momento atual
+    const { data: tarefa, error } = await supabase
+        .from('fila_de_tarefas')
+        .select('*, campanhas(link_url)')
+        .eq('concluida', false)
+        .lte('momento_execucao', new Date().toISOString())
+        .limit(1)
+        .single();
+
+    if (error || !tarefa) {
+        console.log("Nenhuma tarefa para agora. Aguardando...");
+        return;
+    }
+
+    try {
+        // 2. A IA Grok decide a estratégia de humanização
+        const responseIA = await axios.post('https://api.x.ai/v1/chat/completions', {
+            model: "grok-beta",
+            messages: [
+                { role: "system", content: "És um especialista em algoritmos de redes sociais. Decide o tempo de retenção (segundos) e um comentário humano para este post." },
+                { role: "user", content: `Link do post: ${tarefa.campanhas.link_url}` }
+            ]
+        }, {
+            headers: { 'Authorization': `Bearer ${GROK_API_KEY}` }
+        });
+
+        const estrategia = responseIA.data.choices[0].message.content;
+        console.log("Estratégia da IA Grok:", estrategia);
+
+        // 3. Simulação da Visita (Aqui o servidor "visita" o link)
+        // No Render gratuito, usamos uma chamada de cabeçalho para validar o hit
+        await axios.get(tarefa.campanhas.link_url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15' }
+        });
+
+        // 4. Marca como concluído para não repetir
+        await supabase
+            .from('fila_de_tarefas')
+            .update({ concluida: true })
+            .eq('id', tarefa.id);
+
+        console.log("Tarefa concluída com sucesso via Grok IA.");
+
+    } catch (err) {
+        console.error("Erro no processamento:", err.message);
+    }
+}
+
+// Executa a cada 2 minutos para poupar recursos gratuitos
+setInterval(processarCicloViral, 120000);
